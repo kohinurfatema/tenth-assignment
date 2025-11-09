@@ -1,14 +1,15 @@
-
+// src/context/AuthContext.jsx
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
+import { 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
     createUserWithEmailAndPassword,
-    signOut
+    signOut,
+    updateProfile // <-- Needed to set Name and Photo URL
 } from 'firebase/auth';
 
-// 🚨 CORRECTED IMPORT PATH: MUST MATCH YOUR FILE NAME 'firebase.config.js'
+// 🚨 CRITICAL FIX: The import path is corrected to match your file name 'firebase.config.js'
 import { auth } from '../firebase/firebase.config'; 
 
 const AuthContext = createContext();
@@ -38,9 +39,19 @@ export const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const register = (email, password) => {
-        // Note: For registration, you'll typically update the user's profile and save data to Firestore
-        return createUserWithEmailAndPassword(auth, email, password);
+    // Updated register function to accept and apply name and photoURL
+    const register = async (email, password, name, photoURL) => { 
+        // 1. Create the user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // 2. Update the user profile with name and photo URL
+        await updateProfile(userCredential.user, {
+            displayName: name,
+            photoURL: photoURL || null // Use provided URL or null
+        });
+
+        // The onAuthStateChanged listener will automatically pick up the updated user details
+        return userCredential;
     };
 
     const logout = () => {
@@ -58,7 +69,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider value={value}>
             {/* We only render the children once the initial auth state is loaded */}
-            {!loading && children}
+            {!loading && children} 
         </AuthContext.Provider>
     );
 };

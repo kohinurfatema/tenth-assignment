@@ -2,38 +2,55 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../context/AuthContext'; // Custom Auth Hook
-import toast, { Toaster } from 'react-hot-toast'; // Toast Library
-import { FcGoogle } from 'react-icons/fc'; // Google Icon (requires react-icons)
+import { useAuth } from '../context/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
+import { FcGoogle } from 'react-icons/fc'; 
+
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 
 const RegisterPage = () => {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [photoURL, setPhotoURL] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [loading, setLoading] = useState(false);
     
-    // Get the register function from context
     const { register } = useAuth(); 
     const navigate = useNavigate();
+
+    const handlePasswordChange = (value) => {
+        setPassword(value);
+        if (passwordRegex.test(value) || value === '') {
+            setPasswordError('');
+        } else {
+            setPasswordError('Password must be 6+ chars, and include upper, lower, digit, and special char.');
+        }
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
-        // 1. Client-Side Validation: Password Check
+        // 1. Client-Side Validation
         if (password !== confirmPassword) {
             toast.error("Passwords do not match!");
-            return; // Stop the function
+            return;
+        }
+        if (passwordError) {
+            toast.error("Please fix password errors before submitting.");
+            return;
         }
 
         setLoading(true);
         
         try {
-            // 2. Call the Firebase register function
-            await register(email, password); 
+            // Call the updated register function with all four fields
+            await register(email, password, name, photoURL); 
             
             toast.success('Registration successful! Welcome to EcoTrack.', { duration: 2500 });
             
-            // 3. Navigate to the dashboard or home after successful registration
+            // Navigate to home after successful registration
             setTimeout(() => {
                 navigate('/'); 
             }, 500);
@@ -42,14 +59,10 @@ const RegisterPage = () => {
             console.error("Registration Error:", error);
             
             let errorMessage = "Registration failed. Please try again.";
-
-            // Common Firebase error code handling
             if (error.code === 'auth/email-already-in-use') {
                 errorMessage = "This email address is already in use.";
             } else if (error.code === 'auth/invalid-email') {
                 errorMessage = "The email address is not valid.";
-            } else if (error.code === 'auth/weak-password') {
-                 errorMessage = "Password should be at least 6 characters.";
             }
 
             toast.error(errorMessage);
@@ -58,19 +71,31 @@ const RegisterPage = () => {
         }
     };
 
-    // NOTE: Implement Google Sign-up logic here when you add it
     const handleGoogleSignUp = () => {
         toast.error("Google Sign-up not yet implemented.");
     };
 
     return (
         <div className="flex justify-center items-center py-16 bg-base-200 min-h-[80vh]">
-            <Toaster position="top-center" /> {/* Toast Container */}
+            <Toaster position="top-center" />
             
             <div className="card w-full max-w-lg shadow-2xl bg-base-100">
                 <form onSubmit={handleRegister} className="card-body">
-                    <h2 className="text-3xl font-bold text-center mb-6">Create an EcoTrack Account</h2>
+                    <h2 className="text-3xl font-bold text-center mb-6">Join EcoTrack</h2>
                     
+                    {/* Name Field */}
+                    <div className="form-control">
+                        <label className="label"><span className="label-text">Full Name</span></label>
+                        <input 
+                            type="text" 
+                            placeholder="John Doe" 
+                            className="input input-bordered" 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+
                     {/* Email Field */}
                     <div className="form-control">
                         <label className="label"><span className="label-text">Email</span></label>
@@ -84,17 +109,35 @@ const RegisterPage = () => {
                         />
                     </div>
                     
+                    {/* Photo URL Field (Optional) */}
+                    <div className="form-control">
+                        <label className="label"><span className="label-text">Photo URL (Optional)</span></label>
+                        <input 
+                            type="url" 
+                            placeholder="https://example.com/avatar.jpg" 
+                            className="input input-bordered" 
+                            value={photoURL}
+                            onChange={(e) => setPhotoURL(e.target.value)}
+                        />
+                    </div>
+
                     {/* Password Field */}
                     <div className="form-control">
                         <label className="label"><span className="label-text">Password</span></label>
                         <input 
                             type="password" 
-                            placeholder="password (min 6 chars)" 
-                            className="input input-bordered" 
+                            placeholder="••••••" 
+                            className={`input input-bordered ${passwordError ? 'input-error' : ''}`}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => handlePasswordChange(e.target.value)}
                             required
                         />
+                        {/* Inline Error Message */}
+                        {passwordError && (
+                            <label className="label">
+                                <span className="label-text-alt text-error">{passwordError}</span>
+                            </label>
+                        )}
                     </div>
 
                     {/* Confirm Password Field */}
@@ -102,8 +145,8 @@ const RegisterPage = () => {
                         <label className="label"><span className="label-text">Confirm Password</span></label>
                         <input 
                             type="password" 
-                            placeholder="repeat password" 
-                            className="input input-bordered" 
+                            placeholder="••••••" 
+                            className={`input input-bordered ${password !== confirmPassword && confirmPassword.length > 0 ? 'input-warning' : ''}`}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
@@ -115,7 +158,8 @@ const RegisterPage = () => {
                         <button 
                             type="submit"
                             className="btn btn-primary"
-                            disabled={loading}
+                            // Disable if loading or if there is a password error
+                            disabled={loading || !!passwordError || password !== confirmPassword} 
                         >
                             {loading ? <span className="loading loading-spinner"></span> : "Register Account"}
                         </button>
