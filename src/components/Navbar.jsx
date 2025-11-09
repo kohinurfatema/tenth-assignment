@@ -1,36 +1,65 @@
 // src/components/Navbar.jsx
-import { Link, NavLink } from 'react-router';
-
-// We'll use a mock state for demonstration
-const MOCK_IS_LOGGED_IN = true; 
-const MOCK_USER_NAME = "EcoWarrior";
+import { Link, NavLink, useNavigate } from 'react-router';
+import { useAuth } from '../context/AuthContext'; // <-- Import useAuth
+import toast from 'react-hot-toast'; // We'll need toast for the logout message
+import { FaUserCircle } from 'react-icons/fa'; // For the user avatar placeholder
 
 const Navbar = () => {
+  const { currentUser, logout } = useAuth(); // Get user state and logout function
+  const navigate = useNavigate();
+
   // Navigation links array for easy maintenance
   const navLinks = (
     <>
       <li><NavLink to="/">Home</NavLink></li>
       <li><NavLink to="/challenges">Challenges</NavLink></li>
-      <li><NavLink to="/activities">My Activities</NavLink></li>
+      {/* My Activities is part of the protected Dashboard, only show if logged in */}
+      {currentUser && <li><NavLink to="/activities">My Activities</NavLink></li>} 
     </>
   );
 
-  const authContent = MOCK_IS_LOGGED_IN ? (
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Successfully logged out.", { duration: 1500 });
+      // Redirect to the homepage after logout
+      navigate('/'); 
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast.error("Failed to log out.");
+    }
+  };
+
+  // --- Dynamic Content based on Authentication State ---
+  const authContent = currentUser ? (
     // State: Logged In (User Dropdown)
     <div className="dropdown dropdown-end">
+      {/* Button/Avatar Trigger */}
       <div tabIndex={0} role="button" className="btn btn-ghost">
         <div className="avatar placeholder">
-          {/* DaisyUI Placeholder for Avatar */}
+          {/* Use user photoURL or a simple icon/initials */}
           <div className="bg-neutral text-neutral-content rounded-full w-10">
-            <span className="text-sm">{MOCK_USER_NAME[0]}</span>
+            {/* Show user's first initial or an icon */}
+            {currentUser.photoURL ? (
+                <img src={currentUser.photoURL} alt="User Avatar" />
+            ) : (
+                <span className="text-sm">
+                   {currentUser.email ? currentUser.email[0].toUpperCase() : <FaUserCircle className="w-6 h-6" />}
+                </span>
+            )}
           </div>
         </div>
-        <span className="hidden md:block ml-2">{MOCK_USER_NAME}</span>
+        <span className="hidden md:block ml-2 font-semibold">
+          {/* Display email or a generic name */}
+          {currentUser.email.split('@')[0]}
+        </span>
       </div>
+
+      {/* Dropdown Menu */}
       <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
         <li><Link to="/profile">Profile</Link></li>
         <li><Link to="/activities">My Activities</Link></li>
-        <li><a onClick={() => console.log('Logging out...')}>Logout</a></li>
+        <li><a onClick={handleLogout}>Logout</a></li>
       </ul>
     </div>
   ) : (
@@ -43,10 +72,9 @@ const Navbar = () => {
 
 
   return (
-    // DaisyUI: navbar and shadow classes
     <div className="navbar bg-base-100 shadow-xl sticky top-0 z-50">
       
-      {/* 1. Mobile Menu (Hamburger) - Visible only on small screens */}
+      {/* 1. Mobile Menu (Hamburger) and Logo */}
       <div className="navbar-start">
         <div className="dropdown">
           {/* Hamburger Icon */}
@@ -55,12 +83,18 @@ const Navbar = () => {
           </div>
           {/* Mobile Menu Content */}
           <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-            {navLinks}
-            <div className="divider my-0"></div> {/* Separator */}
-            {MOCK_IS_LOGGED_IN ? (
+            {/* Main Links */}
+            <li><NavLink to="/">Home</NavLink></li>
+            <li><NavLink to="/challenges">Challenges</NavLink></li>
+            {currentUser && <li><NavLink to="/activities">My Activities</NavLink></li>}
+            
+            <div className="divider my-0"></div> 
+            
+            {/* Auth Links (Mobile) */}
+            {currentUser ? (
               <>
                 <li><Link to="/profile">Profile</Link></li>
-                <li><a onClick={() => console.log('Logging out...')}>Logout</a></li>
+                <li><a onClick={handleLogout}>Logout</a></li>
               </>
             ) : (
               <>
@@ -77,7 +111,7 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* 2. Desktop Navigation Links - Hidden on small screens */}
+      {/* 2. Desktop Navigation Links */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           {navLinks}

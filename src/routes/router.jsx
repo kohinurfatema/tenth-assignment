@@ -1,34 +1,58 @@
 // src/routes/router.jsx
 
 import { createBrowserRouter } from "react-router";
-// Import the two different layouts
-import PublicLayout from "../layouts/PublicLayout"; // Your renamed HomeLayout
-import DashboardLayout from "../layouts/DashboardLayout"; // The new protected layout
 
-// Import pages for public access
+// --- Layout Imports ---
+import PublicLayout from "../layouts/PublicLayout"; 
+import DashboardLayout from "../layouts/DashboardLayout";
+
+// --- Public Page Imports ---
 import HomePage from '../pages/HomePage';
 import ChallengesPage from '../pages/ChallengesPage';
-// You will create these pages next
 import AboutPage from '../pages/AboutPage';
 import ContactPage from '../pages/ContactPage'; 
 
-// Import pages for protected dashboard
+// --- Authentication Page Imports ---
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
+// NOTE: You will need to create a ForgotPasswordPage component later
+// For now, we use a placeholder element.
+
+// --- Dashboard/Protected Page Imports ---
 import ActivitiesPage from '../pages/ActivitiesPage';
-import ProfilePage from '../pages/ProfilePage'; // <-- Create this file
+import ProfilePage from '../pages/ProfilePage';
+
 
 const router = createBrowserRouter([
-    // --- 1. PUBLIC LAYOUT (for marketing pages) ---
+    // --- 1. PUBLIC LAYOUT (Header/Footer for Marketing Pages) ---
     {
         element: <PublicLayout />, 
         children: [
+            // Home Page (Root Path)
             {
                 path: "/",
                 element: <HomePage />,
             },
+            // Main App Pages
             {
                 path: "challenges",
                 element: <ChallengesPage />,
             },
+            // Authentication Pages
+            {
+                path: "login",
+                element: <LoginPage />,
+            },
+            {
+                path: "register",
+                element: <RegisterPage />,
+            },
+            {
+                path: "forgot-password",
+                // Placeholder for the dedicated Forgot Password page
+                element: <div className="p-8 text-center text-xl">Password Recovery Flow Here</div>,
+            },
+            // Footer Quick Links
             {
                 path: "about",
                 element: <AboutPage />,
@@ -40,10 +64,9 @@ const router = createBrowserRouter([
         ],
     },
 
-    // --- 2. DASHBOARD LAYOUT (protected pages) ---
+    // --- 2. DASHBOARD LAYOUT (Protected Area with Sidebar) ---
     {
-        // We can add a parent path, e.g., "/dashboard", but we'll use root for now
-        // NOTE: Later, this route object will include an authentication check.
+        // NOTE: Later, we will add logic here to redirect unauthenticated users to /login
         element: <DashboardLayout />, 
         children: [
             {
@@ -52,12 +75,19 @@ const router = createBrowserRouter([
             },
             {
                 path: "profile", // Full path: /profile
-                element: <ProfilePage />, // Create this new file
+                element: <ProfilePage />, 
             },
         ],
     },
     
-    // You should also add a 404 Not Found route here eventually
+    // --- 3. 404 Not Found Route ---
+    {
+        path: "*",
+        element: <div className="min-h-screen flex flex-col justify-center items-center">
+                    <h1 className="text-4xl font-bold">404</h1>
+                    <p className="text-lg">Page Not Found</p>
+                </div>,
+    },
 ]);
 
 export default router;
