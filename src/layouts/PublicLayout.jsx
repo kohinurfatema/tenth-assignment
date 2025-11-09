@@ -4,7 +4,7 @@ import { Outlet } from 'react-router';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer'; // <-- Import the new Footer
 
-const HomeLayout = () => {
+const PublicLayout = () => {
     return (
         // Use a flex column layout to push the footer to the bottom
         <div className="min-h-screen flex flex-col">
@@ -23,4 +23,4 @@ const HomeLayout = () => {
     );
 };
 
-export default HomeLayout;
+export default PublicLayout;
