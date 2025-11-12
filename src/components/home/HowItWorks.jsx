@@ -4,20 +4,20 @@ import { FaUserPlus, FaChartLine, FaShareAlt } from 'react-icons/fa'; // Require
 const steps = [
   {
     icon: FaUserPlus,
-    title: "1. Join a Challenge",
-    description: "Browse our diverse list of sustainable challenges (e.g., Plastic Fast, Water Saver) and join the one that fits your lifestyle. Your journey starts here!",
+    title: "Join a Challenge",
+    description: "Pick a goal that fits your lifestyle — plastic-free weeks, water savings, transit swaps — and get started in one tap.",
     color: "text-success",
   },
   {
     icon: FaChartLine,
-    title: "2. Track Your Progress",
-    description: "Use our dashboard to log your actions, measure your impact (CO₂ saved, water conserved), and watch your positive contribution grow.",
+    title: "Track Progress",
+    description: "Log actions from the dashboard, visualize CO₂, water, or waste reductions, and stay motivated with weekly milestones.",
     color: "text-info",
   },
   {
     icon: FaShareAlt,
-    title: "3. Share & Inspire",
-    description: "Connect with the community! Share your achievements, post practical eco-tips, and inspire others to start or accelerate their own green journey.",
+    title: "Share Tips",
+    description: "Celebrate wins, post practical advice, and help neighbors follow your lead in the EcoTrack community feed.",
     color: "text-warning",
   },
 ];
@@ -25,7 +25,7 @@ const steps = [
 const HowItWorks = () => {
   return (
     <div className="card bg-base-100 shadow-xl p-6">
-      <h2 className="card-title text-3xl mb-8 text-center justify-center">How EcoTrack Works</h2>
+      <h2 className="section-title text-center justify-center">How EcoTrack Works</h2>
       
       {/* Grid structure for the three steps */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
