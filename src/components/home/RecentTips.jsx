@@ -1,32 +1,59 @@
-// src/components/home/RecentTips.jsx
-import { recentTips } from '../../data/mockData';
-import { FaArrowUp } from 'react-icons/fa'; // Requires react-icons if not installed
+import { useEffect, useState } from 'react';
+import { FaArrowUp } from 'react-icons/fa';
+import { fetchJson } from '../../data/apiClient';
 
 const RecentTips = () => {
-  return (
-    <div className="my-10">
-      <h2 className="text-3xl font-bold mb-6">Latest Community Tips</h2>
-      
+  const [tips, setTips] = useState([]);
+  const [status, setStatus] = useState({ loading: true, error: '' });
+
+  useEffect(() => {
+    const loadTips = async () => {
+      try {
+        const data = await fetchJson('/api/tips/recent');
+        setTips(data);
+        setStatus({ loading: false, error: '' });
+      } catch (error) {
+        setStatus({ loading: false, error: 'Unable to load community tips.' });
+      }
+    };
+    loadTips();
+  }, []);
+
+  const renderContent = () => {
+    if (status.loading) {
+      return (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, idx) => (
+            <div key={idx} className="card bg-base-200 animate-pulse h-32" />
+          ))}
+        </div>
+      );
+    }
+
+    if (status.error || !tips.length) {
+      return (
+        <div className="alert alert-info">
+          <span>{status.error || 'Tips from the community will show up here soon.'}</span>
+        </div>
+      );
+    }
+
+    return (
       <div className="space-y-4">
-        {recentTips.map((tip) => (
-          // Card for each tip
-          <div key={tip.id} className="card bg-green-100 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="card-body p-4">
-              <h3 className="card-title text-lg">{tip.title}</h3>
-              
-              <p className="text-sm text-gray-600 line-clamp-2">{tip.preview}</p>
-              
+        {tips.map((tip) => (
+          <div key={tip._id} className="card-elevated bg-green-50">
+            <div className="card-content">
+              <h3 className="text-lg font-semibold">{tip.title}</h3>
+              <p className="section-text mb-0 line-clamp-3">{tip.preview}</p>
               <div className="flex justify-between items-center text-xs mt-2">
                 <p className="font-semibold text-primary">By: {tip.authorName}</p>
                 <div className="flex items-center space-x-3">
-                  {/* Upvotes */}
-                  <div className="flex items-center">
+                  <span className="flex items-center">
                     <FaArrowUp className="w-3 h-3 text-success mr-1" />
-                    <span>{tip.upvotes}</span>
-                  </div>
-                  {/* Date Preview */}
-                  <span className="text-gray-400">
-                    {tip.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {tip.upvotes}
+                  </span>
+                  <span className="text-gray-500">
+                    {new Date(tip.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               </div>
@@ -34,7 +61,13 @@ const RecentTips = () => {
           </div>
         ))}
       </div>
-      
+    );
+  };
+
+  return (
+    <div className="my-10">
+      <h2 className="section-title">Latest Community Tips</h2>
+      {renderContent()}
       <div className="text-center mt-6">
         <button className="btn btn-sm btn-outline btn-info">View All Tips</button>
       </div>
