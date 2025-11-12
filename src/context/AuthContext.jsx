@@ -6,7 +6,10 @@ import {
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword,
     signOut,
-    updateProfile // <-- Needed to set Name and Photo URL
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup,
+    sendPasswordResetEmail
 } from 'firebase/auth';
 
 // 🚨 CRITICAL FIX: The import path is corrected to match your file name 'firebase.config.js'
@@ -20,6 +23,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const googleProvider = new GoogleAuthProvider();
 
     // 1. Authentication Status Listener (runs once on mount)
     useEffect(() => {
@@ -37,6 +41,10 @@ export const AuthProvider = ({ children }) => {
     // 2. Authentication Functions
     const login = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
+    };
+
+    const loginWithGoogle = () => {
+        return signInWithPopup(auth, googleProvider);
     };
 
     // Updated register function to accept and apply name and photoURL
@@ -58,18 +66,29 @@ export const AuthProvider = ({ children }) => {
         return signOut(auth);
     };
 
+    const resetPassword = (email) => sendPasswordResetEmail(auth, email);
+
 
     const value = {
         currentUser,
         login,
+        loginWithGoogle,
         register,
         logout,
+        resetPassword,
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-base-200">
+                <span className="loading loading-spinner loading-lg text-success" aria-label="Loading application" />
+            </div>
+        );
+    }
 
     return (
         <AuthContext.Provider value={value}>
-            {/* We only render the children once the initial auth state is loaded */}
-            {!loading && children} 
+            {children}
         </AuthContext.Provider>
     );
 };
