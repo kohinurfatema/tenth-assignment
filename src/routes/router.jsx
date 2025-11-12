@@ -5,61 +5,66 @@ import { createBrowserRouter } from "react-router";
 // --- Layout Imports ---
 import PublicLayout from "../layouts/PublicLayout"; 
 import DashboardLayout from "../layouts/DashboardLayout";
-
-// --- Auth Guard Import ---
-import ProtectedRoute from './ProtectedRoute'; // <-- NEW
+import ProtectedRoute from "./ProtectedRoute";
 
 // --- Public Page Imports ---
 import HomePage from '../pages/HomePage';
 import ChallengesPage from '../pages/ChallengesPage';
+import ChallengeDetailPage from '../pages/ChallengeDetailPage';
 import AboutPage from '../pages/AboutPage';
 import ContactPage from '../pages/ContactPage'; 
+
+// --- Authentication Page Imports ---
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 
-// --- Placeholder Protected Page Imports ---
-// (We will create these pages later)
-const ChallengeDetailPage = () => <div className="p-8">Challenge Detail Page</div>
-const AddChallengePage = () => <div className="p-8">Add New Challenge Page (Protected)</div>
-const JoinChallengePage = () => <div className="p-8">Join Challenge Page (Protected)</div>
-const ActivitiesPage = () => <div className="p-8">My Activities Dashboard</div>
-const ProfilePage = () => <div className="p-8">User Profile Settings</div>
+// --- Dashboard/Protected Page Imports ---
+import ActivitiesPage from '../pages/ActivitiesPage';
+import ActivityDetailPage from '../pages/ActivityDetailPage';
+import AddChallengePage from '../pages/AddChallengePage';
+import JoinChallengePage from '../pages/JoinChallengePage';
 
 
 const router = createBrowserRouter([
-    // --- 1. PUBLIC LAYOUT (Header/Footer for Marketing Pages) ---
     {
-        element: <PublicLayout />, 
+        element: <PublicLayout />,
         children: [
-            // PUBLIC ROUTES
             { path: "/", element: <HomePage /> },
-            { path: "login", element: <LoginPage /> },
-            { path: "register", element: <RegisterPage /> },
-            { path: "forgot-password", element: <div className="p-8 text-center text-xl">Password Recovery Flow Here</div> },
-            { path: "about", element: <AboutPage /> },
-            { path: "contact", element: <ContactPage /> },
-
-            // PUBLIC CHALLENGE ROUTES (Browse & View Detail)
             { path: "challenges", element: <ChallengesPage /> },
             { path: "challenges/:id", element: <ChallengeDetailPage /> },
+            {
+                path: "challenges/add",
+                element: (
+                    <ProtectedRoute>
+                        <AddChallengePage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "challenges/join/:id",
+                element: (
+                    <ProtectedRoute>
+                        <JoinChallengePage />
+                    </ProtectedRoute>
+                ),
+            },
+            { path: "login", element: <LoginPage /> },
+            { path: "register", element: <RegisterPage /> },
+            { path: "forgot-password", element: <ForgotPasswordPage /> },
+            { path: "about", element: <AboutPage /> },
+            { path: "contact", element: <ContactPage /> },
         ],
     },
-
-    // --- 2. DASHBOARD LAYOUT (PROTECTED AREA with Sidebar/Dashboard Frame) ---
     {
-        // Wrap the Dashboard Layout element in the ProtectedRoute component
-        element: <ProtectedRoute><DashboardLayout /></ProtectedRoute>, 
+        element: (
+            <ProtectedRoute>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
         children: [
-            // PROTECTED CHALLENGE ROUTES (Management & Action)
-            { path: "challenges/add", element: <AddChallengePage /> },
-            { path: "challenges/join/:id", element: <JoinChallengePage /> },
-            
-            // PROTECTED USER ACTIVITY ROUTES (Dashboard)
-            { path: "my-activities", element: <ActivitiesPage /> }, // Main dashboard
-            { path: "my-activities/:id", element: <div className="p-8">Specific Activity Tracking</div> }, // Detail view
-            
-            // PROTECTED PROFILE ROUTE
-            { path: "profile", element: <ProfilePage /> }, 
+            { path: "my-activities", element: <ActivitiesPage /> },
+            { path: "my-activities/:id", element: <ActivityDetailPage /> },
         ],
     },
     

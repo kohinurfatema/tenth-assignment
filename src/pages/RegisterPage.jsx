@@ -1,12 +1,12 @@
-
+// src/pages/RegisterPage.jsx
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc'; 
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{6,}$/;
 
 const RegisterPage = () => {
     const [name, setName] = useState('');
@@ -16,16 +16,19 @@ const RegisterPage = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     
-    const { register } = useAuth(); 
+    const { register, loginWithGoogle } = useAuth(); 
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
 
     const handlePasswordChange = (value) => {
         setPassword(value);
         if (passwordRegex.test(value) || value === '') {
             setPasswordError('');
         } else {
-            setPasswordError('Password must be 6+ chars, and include upper, lower, digit.');
+            setPasswordError('Password must be 6+ chars and include upper, lower, and special characters.');
         }
     };
 
@@ -52,7 +55,7 @@ const RegisterPage = () => {
             
             // Navigate to home after successful registration
             setTimeout(() => {
-                navigate('/'); 
+                navigate(from, { replace: true }); 
             }, 500);
 
         } catch (error) {
@@ -71,8 +74,18 @@ const RegisterPage = () => {
         }
     };
 
-    const handleGoogleSignUp = () => {
-        toast.error("Google Sign-up not yet implemented.");
+    const handleGoogleSignUp = async () => {
+        setGoogleLoading(true);
+        try {
+            await loginWithGoogle();
+            toast.success('Signed up with Google! Welcome to EcoTrack.', { duration: 2500 });
+            navigate(from, { replace: true });
+        } catch (error) {
+            console.error("Google Sign-up Error:", error);
+            toast.error('Google sign-up failed. Please try again.');
+        } finally {
+            setGoogleLoading(false);
+        }
     };
 
     return (
@@ -173,16 +186,17 @@ const RegisterPage = () => {
                             type="button" 
                             onClick={handleGoogleSignUp} 
                             className="btn btn-outline"
+                            disabled={googleLoading}
                         >
                             <FcGoogle className="w-5 h-5 mr-2" />
-                            Sign up with Google
+                            {googleLoading ? 'Connecting...' : 'Sign up with Google'}
                         </button>
                     </div>
 
                     {/* Links */}
                     <div className="mt-4 text-center text-sm">
                         <p>
-                            Already have an account? <Link to="/login" className="link link-primary">Login Here</Link>
+                            Already have an account? <Link to="/login" state={{ from }} className="link link-primary">Login Here</Link>
                         </p>
                     </div>
 

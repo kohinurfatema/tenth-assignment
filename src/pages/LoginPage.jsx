@@ -1,7 +1,7 @@
 // src/pages/LoginPage.jsx
 
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext'; // Custom Auth Hook
 import toast, { Toaster } from 'react-hot-toast'; // Toast Library
 import { FcGoogle } from 'react-icons/fc'; // Google Icon (requires react-icons)
@@ -10,14 +10,11 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    
-    const { login } = useAuth(); // Get the login function from context
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const { login, loginWithGoogle } = useAuth(); // Get auth functions
     const navigate = useNavigate();
     const location = useLocation();
-    
-    // Determine the redirect path: use the path the user was trying to access, otherwise default to home
-    const from = location.state?.from?.pathname || "/"; 
-
+    const from = location.state?.from?.pathname || '/';
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -26,21 +23,15 @@ const LoginPage = () => {
         try {
             await login(email, password); // Call the Firebase login function
             toast.success('Login successful! Welcome back.', { duration: 2000 });
-            
-            // Navigate to the intended route or home after success
-            setTimeout(() => {
-                navigate(from, { replace: true }); 
-            }, 500);
+            navigate(from, { replace: true });
 
         } catch (error) {
             console.error(error);
             let errorMessage = "Login failed. Please check your credentials.";
 
-            // Firebase error code handling 
-            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+            // Firebase error code handling (optional but recommended)
+            if (error.code === 'auth/invalid-credential') {
                 errorMessage = "Invalid email or password.";
-            } else if (error.code === 'auth/user-not-found') {
-                errorMessage = "No user found with this email.";
             } else if (error.code === 'auth/too-many-requests') {
                  errorMessage = "Too many failed attempts. Try again later.";
             }
@@ -51,9 +42,18 @@ const LoginPage = () => {
         }
     };
 
-    // Placeholder for Google Login
-    const handleGoogleLogin = () => {
-        toast.error("Google Login not yet implemented.");
+    const handleGoogleLogin = async () => {
+        setGoogleLoading(true);
+        try {
+            await loginWithGoogle();
+            toast.success('Logged in with Google!', { duration: 2000 });
+            navigate(from, { replace: true });
+        } catch (error) {
+            console.error(error);
+            toast.error('Google sign-in failed. Please try again.');
+        } finally {
+            setGoogleLoading(false);
+        }
     };
 
     return (
@@ -109,19 +109,19 @@ const LoginPage = () => {
                             type="button" 
                             onClick={handleGoogleLogin} 
                             className="btn btn-outline"
+                            disabled={googleLoading}
                         >
                             <FcGoogle className="w-5 h-5 mr-2" />
-                            Sign in with Google
+                            {googleLoading ? 'Connecting...' : 'Sign in with Google'}
                         </button>
                     </div>
 
                     {/* Links */}
                     <div className="mt-4 text-center text-sm space-y-2">
                         <p>
-                            Don't have an account? <Link to="/register" className="link link-primary">Register Here</Link>
+                            Don't have an account? <Link to="/register" state={{ from }} className="link link-primary">Register Here</Link>
                         </p>
                         <p>
-                            {/* Link to the Forgot Password route (public link only, no implementation needed yet) */}
                             <Link to="/forgot-password" className="link link-hover text-warning">
                                 Forgot Password?
                             </Link>
