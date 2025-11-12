@@ -1,4 +1,4 @@
-// src/pages/RegisterPage.jsx
+
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc'; 
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
 const RegisterPage = () => {
     const [name, setName] = useState('');
@@ -25,7 +25,7 @@ const RegisterPage = () => {
         if (passwordRegex.test(value) || value === '') {
             setPasswordError('');
         } else {
-            setPasswordError('Password must be 6+ chars, and include upper, lower, digit, and special char.');
+            setPasswordError('Password must be 6+ chars, and include upper, lower, digit.');
         }
     };
 

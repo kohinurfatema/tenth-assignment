@@ -1,7 +1,7 @@
 // src/pages/LoginPage.jsx
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext'; // Custom Auth Hook
 import toast, { Toaster } from 'react-hot-toast'; // Toast Library
 import { FcGoogle } from 'react-icons/fc'; // Google Icon (requires react-icons)
@@ -10,8 +10,14 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    
     const { login } = useAuth(); // Get the login function from context
     const navigate = useNavigate();
+    const location = useLocation();
+    
+    // Determine the redirect path: use the path the user was trying to access, otherwise default to home
+    const from = location.state?.from?.pathname || "/"; 
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -21,18 +27,20 @@ const LoginPage = () => {
             await login(email, password); // Call the Firebase login function
             toast.success('Login successful! Welcome back.', { duration: 2000 });
             
-            // Navigate to home or intended route after a short delay
+            // Navigate to the intended route or home after success
             setTimeout(() => {
-                navigate('/'); 
+                navigate(from, { replace: true }); 
             }, 500);
 
         } catch (error) {
             console.error(error);
             let errorMessage = "Login failed. Please check your credentials.";
 
-            // Firebase error code handling (optional but recommended)
-            if (error.code === 'auth/invalid-credential') {
+            // Firebase error code handling 
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
                 errorMessage = "Invalid email or password.";
+            } else if (error.code === 'auth/user-not-found') {
+                errorMessage = "No user found with this email.";
             } else if (error.code === 'auth/too-many-requests') {
                  errorMessage = "Too many failed attempts. Try again later.";
             }
@@ -43,8 +51,7 @@ const LoginPage = () => {
         }
     };
 
-    // NOTE: For Google Login, you would add a similar function 
-    // using signInWithPopup(auth, provider) and handle the redirect/popup flow.
+    // Placeholder for Google Login
     const handleGoogleLogin = () => {
         toast.error("Google Login not yet implemented.");
     };
@@ -114,6 +121,7 @@ const LoginPage = () => {
                             Don't have an account? <Link to="/register" className="link link-primary">Register Here</Link>
                         </p>
                         <p>
+                            {/* Link to the Forgot Password route (public link only, no implementation needed yet) */}
                             <Link to="/forgot-password" className="link link-hover text-warning">
                                 Forgot Password?
                             </Link>

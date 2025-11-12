@@ -13,8 +13,7 @@ const Navbar = () => {
     <>
       <li><NavLink to="/">Home</NavLink></li>
       <li><NavLink to="/challenges">Challenges</NavLink></li>
-      {/* My Activities is part of the protected Dashboard, only show if logged in */}
-      {currentUser && <li><NavLink to="/activities">My Activities</NavLink></li>} 
+      <li><NavLink to="/my-activities">My Activities</NavLink></li>
     </>
   );
 
@@ -50,15 +49,13 @@ const Navbar = () => {
           </div>
         </div>
         <span className="hidden md:block ml-2 font-semibold">
-          {/* Display email or a generic name */}
-          {currentUser.email.split('@')[0]}
+          {currentUser.displayName || currentUser.email.split('@')[0]}
         </span>
       </div>
 
       {/* Dropdown Menu */}
       <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-        <li><Link to="/profile">Profile</Link></li>
-        <li><Link to="/activities">My Activities</Link></li>
+        <li><Link to="/my-activities">My Activities</Link></li>
         <li><a onClick={handleLogout}>Logout</a></li>
       </ul>
     </div>
@@ -86,14 +83,13 @@ const Navbar = () => {
             {/* Main Links */}
             <li><NavLink to="/">Home</NavLink></li>
             <li><NavLink to="/challenges">Challenges</NavLink></li>
-            {currentUser && <li><NavLink to="/activities">My Activities</NavLink></li>}
+            <li><NavLink to="/my-activities">My Activities</NavLink></li>
             
             <div className="divider my-0"></div> 
             
             {/* Auth Links (Mobile) */}
             {currentUser ? (
               <>
-                <li><Link to="/profile">Profile</Link></li>
                 <li><a onClick={handleLogout}>Logout</a></li>
               </>
             ) : (
@@ -106,8 +102,9 @@ const Navbar = () => {
         </div>
         
         {/* Logo and App Name */}
-        <Link to="/" className="btn btn-ghost text-xl font-bold text-success">
-          🌱 EcoTrack
+        <Link to="/" className="btn btn-ghost text-xl font-bold text-success gap-2 items-center">
+          <span role="img" aria-label="EcoTrack logo" className="text-2xl">🌱</span>
+          <span>EcoTrack</span>
         </Link>
       </div>
 
