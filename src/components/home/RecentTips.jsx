@@ -39,9 +39,9 @@ const RecentTips = () => {
     }
 
     return (
-      <div className="space-y-4 bg-green-100">
+      <div className="space-y-4">
         {tips.map((tip) => (
-          <div key={tip._id} className="card-elevated bg-green-100">
+          <div key={tip._id} className="card-elevated bg-green-50">
             <div className="card-content">
               <h3 className="text-lg font-semibold">{tip.title}</h3>
               <p className="section-text mb-0 line-clamp-3">{tip.preview}</p>
