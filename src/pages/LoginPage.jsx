@@ -2,16 +2,16 @@
 
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '../context/AuthContext'; // Custom Auth Hook
-import toast, { Toaster } from 'react-hot-toast'; // Toast Library
-import { FcGoogle } from 'react-icons/fc'; // Google Icon (requires react-icons)
+import { useAuth } from '../context/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
+import { FcGoogle } from 'react-icons/fc';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
-    const { login, loginWithGoogle } = useAuth(); // Get auth functions
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || '/';
@@ -21,19 +21,18 @@ const LoginPage = () => {
         setLoading(true);
         
         try {
-            await login(email, password); // Call the Firebase login function
-            toast.success('Login successful! Welcome back.', { duration: 2000 });
+            await login(email, password);
+            toast.success('Login successful\! Welcome back.', { duration: 2000 });
             navigate(from, { replace: true });
 
         } catch (error) {
             console.error(error);
-            let errorMessage = "Login failed. Please check your credentials.";
+            let errorMessage = 'Login failed. Please check your credentials.';
 
-            // Firebase error code handling (optional but recommended)
             if (error.code === 'auth/invalid-credential') {
-                errorMessage = "Invalid email or password.";
+                errorMessage = 'Invalid email or password.';
             } else if (error.code === 'auth/too-many-requests') {
-                 errorMessage = "Too many failed attempts. Try again later.";
+                 errorMessage = 'Too many failed attempts. Try again later.';
             }
 
             toast.error(errorMessage);
@@ -46,7 +45,7 @@ const LoginPage = () => {
         setGoogleLoading(true);
         try {
             await loginWithGoogle();
-            toast.success('Logged in with Google!', { duration: 2000 });
+            toast.success('Logged in with Google\!', { duration: 2000 });
             navigate(from, { replace: true });
         } catch (error) {
             console.error(error);
@@ -56,9 +55,25 @@ const LoginPage = () => {
         }
     };
 
+    const fillDemoCredentials = (type) => {
+        if (type === 'user') {
+            setEmail('demo@ecotrack.com');
+            setPassword('Demo@123');
+            toast.success('Demo User credentials filled!', { duration: 2000 });
+        } else if (type === 'manager') {
+            setEmail('manager@ecotrack.com');
+            setPassword('Manager@123');
+            toast.success('Manager credentials filled!', { duration: 2000 });
+        } else {
+            setEmail('admin@ecotrack.com');
+            setPassword('Admin@123');
+            toast.success('Admin credentials filled!', { duration: 2000 });
+        }
+    };
+
     return (
         <div className="flex justify-center items-center py-16 bg-base-200 min-h-[80vh]">
-            <Toaster position="top-center" /> {/* Toast Container */}
+            <Toaster position="top-center" />
             
             <div className="card w-full max-w-lg shadow-2xl bg-base-100">
                 <form onSubmit={handleLogin} className="card-body">
@@ -90,7 +105,7 @@ const LoginPage = () => {
                         />
                     </div>
                     
-                    {/* Login Button (Email/Password) */}
+                    {/* Login Button */}
                     <div className="form-control mt-6">
                         <button 
                             type="submit"
@@ -112,14 +127,42 @@ const LoginPage = () => {
                             disabled={googleLoading}
                         >
                             <FcGoogle className="w-5 h-5 mr-2" />
-                            {googleLoading ? 'Connecting...' : 'Sign in with Google'}
+                            {googleLoading ? "Connecting..." : "Sign in with Google"}
                         </button>
+                    </div>
+
+                    {/* Demo Login Buttons */}
+                    <div className="mt-4 p-4 bg-base-200 rounded-lg">
+                        <p className="text-sm text-center text-base-content/70 mb-3">Quick Demo Access</p>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                onClick={() => fillDemoCredentials("user")}
+                                className="btn btn-sm btn-secondary flex-1"
+                            >
+                                Demo User
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => fillDemoCredentials("manager")}
+                                className="btn btn-sm btn-warning flex-1"
+                            >
+                                Demo Manager
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => fillDemoCredentials("admin")}
+                                className="btn btn-sm btn-accent flex-1"
+                            >
+                                Demo Admin
+                            </button>
+                        </div>
                     </div>
 
                     {/* Links */}
                     <div className="mt-4 text-center text-sm space-y-2">
                         <p>
-                            Don't have an account? <Link to="/register" state={{ from }} className="link link-primary">Register Here</Link>
+                            Do not have an account? <Link to="/register" state={{ from }} className="link link-primary">Register Here</Link>
                         </p>
                         <p>
                             <Link to="/forgot-password" className="link link-hover text-warning">

@@ -8,22 +8,28 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
 // --- Public Page Imports ---
-import HomePage from '../pages/HomePage';
-import ChallengesPage from '../pages/ChallengesPage';
-import ChallengeDetailPage from '../pages/ChallengeDetailPage';
-import AboutPage from '../pages/AboutPage';
-import ContactPage from '../pages/ContactPage'; 
+import HomePage from "../pages/HomePage";
+import ChallengesPage from "../pages/ChallengesPage";
+import ChallengeDetailPage from "../pages/ChallengeDetailPage";
+import AboutPage from "../pages/AboutPage";
+import ContactPage from "../pages/ContactPage";
+import PrivacyTermsPage from "../pages/PrivacyTermsPage";
 
 // --- Authentication Page Imports ---
-import LoginPage from '../pages/LoginPage';
-import RegisterPage from '../pages/RegisterPage';
-import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import LoginPage from "../pages/LoginPage";
+import RegisterPage from "../pages/RegisterPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 
 // --- Dashboard/Protected Page Imports ---
-import ActivitiesPage from '../pages/ActivitiesPage';
-import ActivityDetailPage from '../pages/ActivityDetailPage';
-import AddChallengePage from '../pages/AddChallengePage';
-import JoinChallengePage from '../pages/JoinChallengePage';
+import DashboardOverview from "../pages/DashboardOverview";
+import ActivitiesPage from "../pages/ActivitiesPage";
+import ActivityDetailPage from "../pages/ActivityDetailPage";
+import ProfilePage from "../pages/ProfilePage";
+import AddChallengePage from "../pages/AddChallengePage";
+import JoinChallengePage from "../pages/JoinChallengePage";
+import SettingsPage from "../pages/SettingsPage";
+import ManageUsersPage from "../pages/ManageUsersPage";
+import ManageChallengesPage from "../pages/ManageChallengesPage";
 
 
 const router = createBrowserRouter([
@@ -54,21 +60,43 @@ const router = createBrowserRouter([
             { path: "forgot-password", element: <ForgotPasswordPage /> },
             { path: "about", element: <AboutPage /> },
             { path: "contact", element: <ContactPage /> },
+            { path: "privacy", element: <PrivacyTermsPage /> },
+            { path: "terms", element: <PrivacyTermsPage /> },
         ],
     },
     {
+        path: "dashboard",
         element: (
             <ProtectedRoute>
                 <DashboardLayout />
             </ProtectedRoute>
         ),
         children: [
+            { index: true, element: <DashboardOverview /> },
             { path: "my-activities", element: <ActivitiesPage /> },
             { path: "my-activities/:id", element: <ActivityDetailPage /> },
+            { path: "profile", element: <ProfilePage /> },
+            { path: "add-challenge", element: <AddChallengePage /> },
+            { path: "users", element: <ManageUsersPage /> },
+            { path: "challenges", element: <ManageChallengesPage /> },
+            { path: "settings", element: <SettingsPage /> },
+        ],
+    },
+    // Legacy routes redirect
+    {
+        path: "my-activities",
+        element: (
+            <ProtectedRoute>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <ActivitiesPage /> },
+            { path: ":id", element: <ActivityDetailPage /> },
         ],
     },
     
-    // --- 3. 404 Not Found Route ---
+    // --- 404 Not Found Route ---
     {
         path: "*",
         element: <div className="min-h-screen flex flex-col justify-center items-center">

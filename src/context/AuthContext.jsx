@@ -43,22 +43,61 @@ export const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const loginWithGoogle = () => {
-        return signInWithPopup(auth, googleProvider);
+    const loginWithGoogle = async () => {
+        const result = await signInWithPopup(auth, googleProvider);
+        
+        // Save/update user in MongoDB
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL;
+            await fetch(apiUrl + '/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: result.user.email,
+                    displayName: result.user.displayName,
+                    photoURL: result.user.photoURL,
+                    role: 'user',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                })
+            });
+        } catch (error) {
+            console.error('Error saving Google user to MongoDB:', error);
+        }
+        
+        return result;
     };
 
     // Updated register function to accept and apply name and photoURL
-    const register = async (email, password, name, photoURL) => { 
-        // 1. Create the user
+    const register = async (email, password, name, photoURL) => {
+        // 1. Create the user in Firebase
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
+
         // 2. Update the user profile with name and photo URL
         await updateProfile(userCredential.user, {
             displayName: name,
-            photoURL: photoURL || null // Use provided URL or null
+            photoURL: photoURL || null
         });
 
-        // The onAuthStateChanged listener will automatically pick up the updated user details
+        // 3. Save user to MongoDB
+        try {
+            const apiUrl = import.meta.env.VITE_API_URL;
+            await fetch(apiUrl + '/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    displayName: name,
+                    photoURL: photoURL || `https://i.pravatar.cc/150?u=${email}`,
+                    role: 'user',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                })
+            });
+        } catch (error) {
+            console.error('Error saving user to MongoDB:', error);
+        }
+
         return userCredential;
     };
 
@@ -71,6 +110,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         currentUser,
+        user: currentUser, // Alias for compatibility
         login,
         loginWithGoogle,
         register,

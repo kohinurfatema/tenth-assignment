@@ -6,22 +6,27 @@ import RecentTips from '../components/home/RecentTips';
 import UpcomingEvents from '../components/home/UpcomingEvents';
 import WhyGoGreen from '../components/home/WhyGoGreen';
 import HowItWorks from '../components/home/HowItWorks';
+import Testimonials from '../components/home/Testimonials';
+import Newsletter from '../components/home/Newsletter';
+import FAQ from '../components/home/FAQ';
 
 export default function HomePage() {
   return (
     <div className="space-y-16 h-full">
-      
-      {/* Dynamic Sections (Pulled from DB) */}
+
+      {/* 1. Hero Section - Featured Challenges Carousel */}
       <HeroBanner />
+
+      {/* 2. Live Statistics - Community Impact */}
       <LiveStatistics />
-      
+
+      {/* 3. Active Challenges Grid */}
       <div className="grid gap-16 lg:grid-cols-3">
-        {/* Active Challenges will span the full width */}
         <div className="lg:col-span-3">
           <ActiveChallengesGrid />
         </div>
-        
-        {/* Tips and Events side-by-side */}
+
+        {/* 4 & 5. Tips and Events side-by-side */}
         <div className="lg:col-span-2">
           <RecentTips />
         </div>
@@ -30,11 +35,20 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Static Sections */}
-      <div className="grid gap-16 lg:grid-cols-2">
-          <WhyGoGreen />
-          <HowItWorks />
+      {/* 6. Testimonials - What Our Community Says */}
+      <Testimonials />
+
+      {/* 7 & 8. Why Go Green and How It Works */}
+      <div className="space-y-10">
+        <WhyGoGreen />
+        <HowItWorks />
       </div>
+
+      {/* 9. FAQ Section */}
+      <FAQ />
+
+      {/* 10. Newsletter Subscription */}
+      <Newsletter />
 
     </div>
   );
