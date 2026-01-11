@@ -1,4 +1,4 @@
-// src/components/Navbar.jsx
+ // src/components/Navbar.jsx
   import { Link, NavLink, useNavigate } from 'react-router';
   import { useAuth } from '../context/AuthContext';
   import { useTheme } from '../context/ThemeContext';
@@ -76,11 +76,13 @@
             {currentUser.displayName || currentUser.email.split('@')[0]}
           </span>
         </div>
-        <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+        <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg border border-base-200">
           <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><Link to="/my-activities">My Activities</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><a onClick={handleLogout}>Logout</a></li>
+          <li><Link to="/dashboard/profile">Profile</Link></li>
+          <li><Link to="/dashboard/settings">Settings</Link></li>
+          <li className="border-t border-base-200 mt-2 pt-2">
+            <a onClick={handleLogout} className="text-error">Logout</a>
+          </li>
         </ul>
       </div>
     ) : (
@@ -118,7 +120,7 @@
               <div className="divider my-0"></div>
               {currentUser ? (
                 <>
-                  <li><Link to="/profile">Profile</Link></li>
+                  <li><Link to="/dashboard/profile">Profile</Link></li>
                   <li><a onClick={handleLogout}>Logout</a></li>
                 </>
               ) : (
