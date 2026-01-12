@@ -244,4 +244,3 @@
   - https://react-icons.github.io/react-icons/
   - https://unsplash.com/ for images
   - https://firebase.google.com/ for authentication
-
