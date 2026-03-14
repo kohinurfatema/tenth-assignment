@@ -189,7 +189,7 @@ const ChallengesPage = () => {
           {paginatedChallenges.map((challenge) => (
             <div key={challenge._id} className="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow h-full">
               <figure className="aspect-video">
-                <img src={challenge.imageUrl || challenge.imageURL || "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400"} alt={challenge.title} className="w-full h-full object-cover" />
+                <img src={challenge.imageUrl || challenge.imageURL || "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400"} alt={challenge.title} className="w-full h-full object-cover" loading="lazy" />
               </figure>
               <div className="card-body p-4 flex flex-col">
                 <div className="badge badge-primary badge-sm mb-2">{challenge.category}</div>

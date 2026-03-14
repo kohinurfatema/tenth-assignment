@@ -7,7 +7,7 @@ import { FaBell, FaPalette, FaShieldAlt, FaGlobe, FaTrash, FaMoon, FaSun } from 
 const SettingsPage = () => {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [settings, setSettings] = useState({
+  const defaultSettings = {
     emailNotifications: true,
     challengeReminders: true,
     weeklyDigest: false,
@@ -16,6 +16,14 @@ const SettingsPage = () => {
     timezone: 'UTC',
     profileVisibility: 'public',
     showActivity: true,
+  };
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ecotrack_settings');
+      return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+    } catch {
+      return defaultSettings;
+    }
   });
   const [saving, setSaving] = useState(false);
 
@@ -27,12 +35,16 @@ const SettingsPage = () => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     setSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    toast.success('Settings saved successfully!');
-    setSaving(false);
+    try {
+      localStorage.setItem('ecotrack_settings', JSON.stringify(settings));
+      toast.success('Settings saved successfully!');
+    } catch {
+      toast.error('Failed to save settings.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDeleteAccount = () => {

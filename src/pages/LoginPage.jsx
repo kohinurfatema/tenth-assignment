@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc';
 
 const LoginPage = () => {
@@ -73,7 +73,6 @@ const LoginPage = () => {
 
     return (
         <div className="flex justify-center items-center py-16 bg-base-200 min-h-[80vh]">
-            <Toaster position="top-center" />
             
             <div className="card w-full max-w-lg shadow-2xl bg-base-100">
                 <form onSubmit={handleLogin} className="card-body">

@@ -23,10 +23,11 @@ const ChallengeCard = ({ challenge }) => {
             {/* Image Section */}
             <figure className="h-48 overflow-hidden">
                 {imageUrl ? (
-                    <img 
-                        src={imageUrl} 
-                        alt={title} 
+                    <img
+                        src={imageUrl}
+                        alt={title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                     />
                 ) : (
                     // Placeholder if no image URL is available

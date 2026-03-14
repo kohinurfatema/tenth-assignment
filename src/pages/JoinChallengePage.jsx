@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { fetchJson, apiRequest } from '../data/apiClient';
 import { useAuth } from '../context/AuthContext';
 
@@ -55,10 +55,9 @@ const JoinChallengePage = () => {
 
   return (
     <div className="space-y-6">
-      <Toaster position="top-center" />
       <div className="card bg-base-100 shadow-xl">
         <figure className="max-h-80">
-          <img src={challenge.imageUrl || challenge.imageURL} alt={challenge.title} className="w-full object-cover" />
+          <img src={challenge.imageUrl || challenge.imageURL} alt={challenge.title} className="w-full object-cover" loading="lazy" />
         </figure>
         <div className="card-body space-y-4">
           <div className="flex flex-wrap gap-2 items-center">

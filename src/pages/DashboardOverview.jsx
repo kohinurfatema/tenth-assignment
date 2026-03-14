@@ -9,77 +9,117 @@ const DashboardOverview = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [activityData, setActivityData] = useState([]);
+  const [impactData, setImpactData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [chartsLoading, setChartsLoading] = useState(true);
 
-  // Chart data
-  const activityData = [
-    { name: 'Mon', tasks: 4, points: 40 },
-    { name: 'Tue', tasks: 3, points: 30 },
-    { name: 'Wed', tasks: 5, points: 50 },
-    { name: 'Thu', tasks: 2, points: 25 },
-    { name: 'Fri', tasks: 6, points: 65 },
-    { name: 'Sat', tasks: 4, points: 45 },
-    { name: 'Sun', tasks: 7, points: 80 },
-  ];
-
-  const impactData = [
-    { name: 'CO2 Saved', value: 45, color: '#22c55e' },
-    { name: 'Water Saved', value: 25, color: '#3b82f6' },
-    { name: 'Waste Reduced', value: 20, color: '#f59e0b' },
-    { name: 'Energy Saved', value: 10, color: '#8b5cf6' },
-  ];
-
-  const monthlyData = [
-    { month: 'Jan', users: 400, challenges: 24 },
-    { month: 'Feb', users: 550, challenges: 28 },
-    { month: 'Mar', users: 720, challenges: 32 },
-    { month: 'Apr', users: 890, challenges: 35 },
-    { month: 'May', users: 1050, challenges: 38 },
-    { month: 'Jun', users: 1247, challenges: 42 },
-  ];
-  
   const isAdmin = user?.role === 'admin' || user?.email?.includes('admin');
   const isManager = user?.role === 'manager' || user?.email?.includes('manager');
 
   useEffect(() => {
-    // Simulate fetching stats
     const fetchStats = async () => {
       setLoading(true);
-      // Mock data - in production, this would come from the API
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (isAdmin || isManager) {
-        setStats({
-          totalUsers: 1247,
-          totalChallenges: 42,
-          activeParticipants: 892,
-          co2Saved: '15,420 kg',
-          weeklyGrowth: '+12%',
-          completionRate: '78%'
-        });
-      } else {
-        setStats({
-          challengesJoined: 5,
-          challengesCompleted: 3,
-          totalPoints: 450,
-          co2Saved: '12.5 kg',
-          currentStreak: 7,
-          rank: '#124'
-        });
-      }
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL;
 
-      setRecentActivities([
-        { id: 1, action: 'Joined Zero Waste Challenge', date: '2 hours ago', type: 'join' },
-        { id: 2, action: 'Completed daily task', date: '5 hours ago', type: 'complete' },
-        { id: 3, action: 'Earned 50 points', date: '1 day ago', type: 'points' },
-        { id: 4, action: 'Started Plant-Based Week', date: '2 days ago', type: 'join' },
-        { id: 5, action: 'Reached 7-day streak\!', date: '3 days ago', type: 'achievement' },
-      ]);
-      
-      setLoading(false);
+        if (isAdmin || isManager) {
+          const roleHeaders = {
+            'x-user-role': user?.role || (user?.email?.includes('admin') ? 'admin' : 'manager'),
+            'x-user-email': user?.email || '',
+          };
+          const statsRes = await fetch(apiUrl + '/api/stats', { headers: roleHeaders });
+          if (statsRes.ok) {
+            const data = await statsRes.json();
+            setStats({
+              totalUsers: data.totalUsers,
+              totalChallenges: data.totalChallenges,
+              activeParticipants: data.activeParticipants,
+              co2Saved: data.co2Saved,
+              weeklyGrowth: data.weeklyGrowth,
+              completionRate: data.completionRate,
+            });
+          } else {
+            throw new Error('Stats fetch failed');
+          }
+        } else {
+          // Fetch user-specific joined challenges
+          const activitiesRes = await fetch(
+            apiUrl + '/api/activities?user=' + encodeURIComponent(user?.email || '')
+          );
+          const activities = activitiesRes.ok ? await activitiesRes.json() : [];
+
+          const completed = activities.filter(a => a.status === 'completed').length;
+          const totalPoints = activities.reduce((sum, a) => sum + (a.points || 0), 0);
+          const co2 = activities.reduce((sum, a) => sum + (a.co2Saved || 0), 0);
+
+          setStats({
+            challengesJoined: activities.length,
+            challengesCompleted: completed,
+            totalPoints,
+            co2Saved: co2.toFixed(1) + ' kg',
+            currentStreak: 0,
+            rank: '#--',
+          });
+
+          setRecentActivities(
+            activities.slice(0, 5).map((a, i) => ({
+              id: a._id || i,
+              action: 'Joined ' + (a.challengeTitle || a.title || 'a challenge'),
+              date: a.joinedAt ? new Date(a.joinedAt).toLocaleDateString() : 'Recently',
+              type: a.status === 'completed' ? 'complete' : 'join',
+            }))
+          );
+          return;
+        }
+      } catch {
+        // Show zeroed stats on failure instead of fake numbers
+        setStats(
+          isAdmin || isManager
+            ? { totalUsers: 0, totalChallenges: 0, activeParticipants: 0, co2Saved: '0 kg', weeklyGrowth: '0 active', completionRate: '0%' }
+            : { challengesJoined: 0, challengesCompleted: 0, totalPoints: 0, co2Saved: '0 kg', currentStreak: 0, rank: '#--' }
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchStats();
-  }, [isAdmin, isManager]);
+  }, [isAdmin, isManager, user?.email]);
+
+  // Fetch chart data separately
+  useEffect(() => {
+    const fetchCharts = async () => {
+      setChartsLoading(true);
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const userParam = user?.email ? '?user=' + encodeURIComponent(user.email) : '';
+
+      const roleHeaders = {
+        'x-user-role': user?.role || (user?.email?.includes('admin') ? 'admin' : user?.email?.includes('manager') ? 'manager' : 'user'),
+        'x-user-email': user?.email || '',
+      };
+
+      try {
+        const [weeklyRes, impactRes] = await Promise.all([
+          fetch(apiUrl + '/api/stats/weekly' + userParam, { headers: roleHeaders }),
+          fetch(apiUrl + '/api/stats/impact' + userParam, { headers: roleHeaders }),
+        ]);
+        if (weeklyRes.ok) setActivityData(await weeklyRes.json());
+        if (impactRes.ok) setImpactData(await impactRes.json());
+
+        if (isAdmin || isManager) {
+          const growthRes = await fetch(apiUrl + '/api/stats/growth', { headers: roleHeaders });
+          if (growthRes.ok) setMonthlyData(await growthRes.json());
+        }
+      } catch {
+        // Charts stay empty — no fake fallback
+      } finally {
+        setChartsLoading(false);
+      }
+    };
+
+    if (user?.email) fetchCharts();
+  }, [isAdmin, isManager, user?.email]);
 
   const userStatCards = [
     { label: "Challenges Joined", value: stats?.challengesJoined || 0, icon: FaTasks, color: "bg-primary" },
@@ -153,35 +193,47 @@ const DashboardOverview = () => {
         <div className="card bg-base-100 shadow-lg">
           <div className="card-body">
             <h2 className="card-title">Weekly Activity</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={activityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="tasks" stroke="#3b82f6" strokeWidth={2} name="Tasks Completed" />
-                  <Line type="monotone" dataKey="points" stroke="#22c55e" strokeWidth={2} name="Points Earned" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            {chartsLoading ? (
+              <div className="skeleton h-64 w-full rounded-lg" />
+            ) : activityData.length === 0 || activityData.every(d => d.tasks === 0) ? (
+              <div className="h-64 flex items-center justify-center text-base-content/40 text-sm">No activity data yet</div>
+            ) : (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={activityData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="tasks" stroke="#3b82f6" strokeWidth={2} name="Tasks Completed" />
+                    <Line type="monotone" dataKey="points" stroke="#22c55e" strokeWidth={2} name="Points Earned" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="card bg-base-100 shadow-lg">
           <div className="card-body">
             <h2 className="card-title">Impact Breakdown</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={impactData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                    {impactData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            {chartsLoading ? (
+              <div className="skeleton h-64 w-full rounded-lg" />
+            ) : impactData.length === 0 || impactData.every(d => d.value === 0) ? (
+              <div className="h-64 flex items-center justify-center text-base-content/40 text-sm">No impact data yet</div>
+            ) : (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={impactData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      {impactData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -191,20 +243,26 @@ const DashboardOverview = () => {
         <div className="card bg-base-100 shadow-lg">
           <div className="card-body">
             <h2 className="card-title">Platform Growth</h2>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
-                  <YAxis yAxisId="right" orientation="right" stroke="#22c55e" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="users" fill="#3b82f6" name="Total Users" radius={[4, 4, 0, 0]} />
-                  <Bar yAxisId="right" dataKey="challenges" fill="#22c55e" name="Challenges" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {chartsLoading ? (
+              <div className="skeleton h-72 w-full rounded-lg" />
+            ) : monthlyData.length === 0 || monthlyData.every(d => d.users === 0 && d.challenges === 0) ? (
+              <div className="h-72 flex items-center justify-center text-base-content/40 text-sm">No growth data yet</div>
+            ) : (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#22c55e" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="users" fill="#3b82f6" name="Total Users" radius={[4, 4, 0, 0]} />
+                    <Bar yAxisId="right" dataKey="challenges" fill="#22c55e" name="Challenges" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -10,6 +10,18 @@
   --color-accent: #f59e0b;
 }
 
+/* Reusable typography utilities */
+.section-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.section-text {
+  color: oklch(from currentColor l c h / 0.65);
+  line-height: 1.625;
+}
+
 /* Smooth theme transition */
 html {
   transition: background-color 0.3s ease;

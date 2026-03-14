@@ -1,49 +1,61 @@
 // src/routes/router.jsx
 
 import { createBrowserRouter } from "react-router";
+import { lazy, Suspense } from "react";
 
-// --- Layout Imports ---
-import PublicLayout from "../layouts/PublicLayout"; 
+// --- Layout Imports (always eager-loaded) ---
+import PublicLayout from "../layouts/PublicLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
-// --- Public Page Imports ---
-import HomePage from "../pages/HomePage";
-import ChallengesPage from "../pages/ChallengesPage";
-import ChallengeDetailPage from "../pages/ChallengeDetailPage";
-import AboutPage from "../pages/AboutPage";
-import ContactPage from "../pages/ContactPage";
-import PrivacyTermsPage from "../pages/PrivacyTermsPage";
+// --- Lazy-loaded Public Pages ---
+const HomePage = lazy(() => import("../pages/HomePage"));
+const ChallengesPage = lazy(() => import("../pages/ChallengesPage"));
+const ChallengeDetailPage = lazy(() => import("../pages/ChallengeDetailPage"));
+const AboutPage = lazy(() => import("../pages/AboutPage"));
+const ContactPage = lazy(() => import("../pages/ContactPage"));
+const PrivacyTermsPage = lazy(() => import("../pages/PrivacyTermsPage"));
+const BlogPage = lazy(() => import("../pages/BlogPage"));
 
-// --- Authentication Page Imports ---
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
-import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+// --- Lazy-loaded Auth Pages ---
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("../pages/ForgotPasswordPage"));
 
-// --- Dashboard/Protected Page Imports ---
-import DashboardOverview from "../pages/DashboardOverview";
-import ActivitiesPage from "../pages/ActivitiesPage";
-import ActivityDetailPage from "../pages/ActivityDetailPage";
-import ProfilePage from "../pages/ProfilePage";
-import AddChallengePage from "../pages/AddChallengePage";
-import JoinChallengePage from "../pages/JoinChallengePage";
-import SettingsPage from "../pages/SettingsPage";
-import ManageUsersPage from "../pages/ManageUsersPage";
-import ManageChallengesPage from "../pages/ManageChallengesPage";
+// --- Lazy-loaded Dashboard/Protected Pages ---
+const DashboardOverview = lazy(() => import("../pages/DashboardOverview"));
+const ActivitiesPage = lazy(() => import("../pages/ActivitiesPage"));
+const ActivityDetailPage = lazy(() => import("../pages/ActivityDetailPage"));
+const ProfilePage = lazy(() => import("../pages/ProfilePage"));
+const AddChallengePage = lazy(() => import("../pages/AddChallengePage"));
+const JoinChallengePage = lazy(() => import("../pages/JoinChallengePage"));
+const SettingsPage = lazy(() => import("../pages/SettingsPage"));
+const ManageUsersPage = lazy(() => import("../pages/ManageUsersPage"));
+const ManageChallengesPage = lazy(() => import("../pages/ManageChallengesPage"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
+const PageLoader = () => (
+    <div className="min-h-screen flex justify-center items-center">
+        <span className="loading loading-spinner loading-lg text-success"></span>
+    </div>
+);
+
+const Lazy = ({ children }) => (
+    <Suspense fallback={<PageLoader />}>{children}</Suspense>
+);
 
 const router = createBrowserRouter([
     {
         element: <PublicLayout />,
         children: [
-            { path: "/", element: <HomePage /> },
-            { path: "challenges", element: <ChallengesPage /> },
-            { path: "challenges/:id", element: <ChallengeDetailPage /> },
+            { path: "/", element: <Lazy><HomePage /></Lazy> },
+            { path: "challenges", element: <Lazy><ChallengesPage /></Lazy> },
+            { path: "challenges/:id", element: <Lazy><ChallengeDetailPage /></Lazy> },
             {
                 path: "challenges/add",
                 element: (
                     <ProtectedRoute>
-                        <AddChallengePage />
+                        <Lazy><AddChallengePage /></Lazy>
                     </ProtectedRoute>
                 ),
             },
@@ -51,17 +63,19 @@ const router = createBrowserRouter([
                 path: "challenges/join/:id",
                 element: (
                     <ProtectedRoute>
-                        <JoinChallengePage />
+                        <Lazy><JoinChallengePage /></Lazy>
                     </ProtectedRoute>
                 ),
             },
-            { path: "login", element: <LoginPage /> },
-            { path: "register", element: <RegisterPage /> },
-            { path: "forgot-password", element: <ForgotPasswordPage /> },
-            { path: "about", element: <AboutPage /> },
-            { path: "contact", element: <ContactPage /> },
-            { path: "privacy", element: <PrivacyTermsPage /> },
-            { path: "terms", element: <PrivacyTermsPage /> },
+            { path: "login", element: <Lazy><LoginPage /></Lazy> },
+            { path: "register", element: <Lazy><RegisterPage /></Lazy> },
+            { path: "forgot-password", element: <Lazy><ForgotPasswordPage /></Lazy> },
+            { path: "about", element: <Lazy><AboutPage /></Lazy> },
+            { path: "contact", element: <Lazy><ContactPage /></Lazy> },
+            { path: "privacy", element: <Lazy><PrivacyTermsPage /></Lazy> },
+            { path: "terms", element: <Lazy><PrivacyTermsPage /></Lazy> },
+            { path: "blog", element: <Lazy><BlogPage /></Lazy> },
+            { path: "blog/:slug", element: <Lazy><BlogPage /></Lazy> },
         ],
     },
     {
@@ -72,14 +86,14 @@ const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-            { index: true, element: <DashboardOverview /> },
-            { path: "my-activities", element: <ActivitiesPage /> },
-            { path: "my-activities/:id", element: <ActivityDetailPage /> },
-            { path: "profile", element: <ProfilePage /> },
-            { path: "add-challenge", element: <AddChallengePage /> },
-            { path: "users", element: <ManageUsersPage /> },
-            { path: "challenges", element: <ManageChallengesPage /> },
-            { path: "settings", element: <SettingsPage /> },
+            { index: true, element: <Lazy><DashboardOverview /></Lazy> },
+            { path: "my-activities", element: <Lazy><ActivitiesPage /></Lazy> },
+            { path: "my-activities/:id", element: <Lazy><ActivityDetailPage /></Lazy> },
+            { path: "profile", element: <Lazy><ProfilePage /></Lazy> },
+            { path: "add-challenge", element: <Lazy><AddChallengePage /></Lazy> },
+            { path: "users", element: <Lazy><ManageUsersPage /></Lazy> },
+            { path: "challenges", element: <Lazy><ManageChallengesPage /></Lazy> },
+            { path: "settings", element: <Lazy><SettingsPage /></Lazy> },
         ],
     },
     // Legacy routes redirect
@@ -91,18 +105,15 @@ const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-            { index: true, element: <ActivitiesPage /> },
-            { path: ":id", element: <ActivityDetailPage /> },
+            { index: true, element: <Lazy><ActivitiesPage /></Lazy> },
+            { path: ":id", element: <Lazy><ActivityDetailPage /></Lazy> },
         ],
     },
-    
+
     // --- 404 Not Found Route ---
     {
         path: "*",
-        element: <div className="min-h-screen flex flex-col justify-center items-center">
-                    <h1 className="text-4xl font-bold">404</h1>
-                    <p className="text-lg">Page Not Found</p>
-                </div>,
+        element: <Lazy><NotFoundPage /></Lazy>,
     },
 ]);
 

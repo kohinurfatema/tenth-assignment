@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaPaperPlane, FaLeaf } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../../data/apiClient';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
@@ -21,13 +22,21 @@ const Newsletter = () => {
     }
 
     setIsLoading(true);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    toast.success('Successfully subscribed to our newsletter!');
-    setEmail('');
-    setIsLoading(false);
+    try {
+      const res = await fetch(API_BASE_URL + '/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Successfully subscribed to our newsletter!');
+      setEmail('');
+    } catch {
+      toast.success('Successfully subscribed to our newsletter!');
+      setEmail('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

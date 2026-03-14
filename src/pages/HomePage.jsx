@@ -9,6 +9,8 @@ import HowItWorks from '../components/home/HowItWorks';
 import Testimonials from '../components/home/Testimonials';
 import Newsletter from '../components/home/Newsletter';
 import FAQ from '../components/home/FAQ';
+import BlogPreview from '../components/home/BlogPreview';
+import Partners from '../components/home/Partners';
 
 export default function HomePage() {
   return (
@@ -47,7 +49,13 @@ export default function HomePage() {
       {/* 9. FAQ Section */}
       <FAQ />
 
-      {/* 10. Newsletter Subscription */}
+      {/* 10. Blog Preview */}
+      <BlogPreview />
+
+      {/* 11. Partners */}
+      <Partners />
+
+      {/* 12. Newsletter Subscription */}
       <Newsletter />
 
     </div>

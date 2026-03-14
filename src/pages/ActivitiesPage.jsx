@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { fetchJson, apiRequest } from '../data/apiClient';
 
@@ -107,7 +107,7 @@ const ActivitiesPage = () => {
             <div key={record._id} className="card bg-base-100 shadow-xl">
               {challenge.imageUrl && (
                 <figure className="h-44">
-                  <img src={challenge.imageUrl || challenge.imageURL} alt={challenge.title} className="w-full h-full object-cover" />
+                  <img src={challenge.imageUrl || challenge.imageURL} alt={challenge.title} className="w-full h-full object-cover" loading="lazy" />
                 </figure>
               )}
               <div className="card-body space-y-4">
@@ -159,7 +159,6 @@ const ActivitiesPage = () => {
 
   return (
     <div className="space-y-6">
-      <Toaster position="top-center" />
       <h1 className="section-title">My Activities</h1>
       <p className="section-text">Track your joined challenges and keep your progress up to date.</p>
       {renderCards()}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const ForgotPasswordPage = () => {
@@ -26,7 +26,6 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="flex justify-center items-center py-16 bg-base-200 min-h-[80vh]">
-      <Toaster position="top-center" />
       <div className="card w-full max-w-lg shadow-2xl bg-base-100">
         <form onSubmit={handleReset} className="card-body space-y-4">
           <h2 className="text-3xl font-bold text-center">Reset Your Password</h2>

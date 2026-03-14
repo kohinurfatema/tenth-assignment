@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { fetchJson } from '../../data/apiClient';
-import { FaGlobeAmericas, FaChartLine, FaLeaf, FaUsers, FaRecycle, FaTint, FaCalendarAlt, FaCloud } from 'react-icons/fa';
+import { FaGlobeAmericas, FaChartLine, FaUsers, FaRecycle, FaTint, FaCalendarAlt, FaCloud } from 'react-icons/fa';
+import useFetch from '../../hooks/useFetch';
 
 const iconMap = {
   'Community Events': { icon: FaCalendarAlt, color: 'from-purple-400 to-indigo-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
@@ -13,23 +12,9 @@ const iconMap = {
 const defaultIcon = { icon: FaChartLine, color: 'from-gray-400 to-gray-500', bg: 'bg-gray-50 dark:bg-gray-900/20' };
 
 const LiveStatistics = () => {
-  const [stats, setStats] = useState([]);
-  const [status, setStatus] = useState({ loading: true, error: '' });
+  const { data: stats, loading, error } = useFetch('/api/stats/live', []);
 
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const data = await fetchJson('/api/stats/live');
-        setStats(data);
-        setStatus({ loading: false, error: '' });
-      } catch (error) {
-        setStatus({ loading: false, error: 'Unable to load live statistics.' });
-      }
-    };
-    loadStats();
-  }, []);
-
-  if (status.loading) {
+  if (loading) {
     return (
       <div className="my-10">
         <div className="h-8 w-48 bg-base-300 rounded-lg mx-auto mb-8 animate-pulse"></div>
@@ -42,10 +27,10 @@ const LiveStatistics = () => {
     );
   }
 
-  if (status.error || !stats.length) {
+  if (error || !stats.length) {
     return (
       <div className="alert alert-warning">
-        <span>{status.error || 'Live statistics will appear here soon.'}</span>
+        <span>{error || 'Live statistics will appear here soon.'}</span>
       </div>
     );
   }

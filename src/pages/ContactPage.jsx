@@ -18,13 +18,21 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Message sent successfully! We will get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setLoading(false);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(apiUrl + '/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Server error');
+      toast.success("Message sent! We'll get back to you soon.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      toast.error("Failed to send. Please email us directly at hello@ecotrack.com");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactInfo = [

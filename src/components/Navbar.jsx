@@ -19,6 +19,7 @@
       <>
         <li><NavLink to="/" className={linkClass} end>Home</NavLink></li>
         <li><NavLink to="/challenges" className={linkClass}>Challenges</NavLink></li>
+        <li><NavLink to="/blog" className={linkClass}>Blog</NavLink></li>
         <li><NavLink to="/about" className={linkClass}>About</NavLink></li>
       </>
     );
@@ -28,6 +29,7 @@
         <li><NavLink to="/" className={linkClass} end>Home</NavLink></li>
         <li><NavLink to="/challenges" className={linkClass}>Challenges</NavLink></li>
         <li><NavLink to="/my-activities" className={linkClass}>My Activities</NavLink></li>
+        <li><NavLink to="/blog" className={linkClass}>Blog</NavLink></li>
         <li><NavLink to="/about" className={linkClass}>About</NavLink></li>
         <li><NavLink to="/contact" className={linkClass}>Contact</NavLink></li>
       </>
@@ -106,6 +108,7 @@
                   <li><NavLink to="/" className={linkClass} end>Home</NavLink></li>
                   <li><NavLink to="/challenges" className={linkClass}>Challenges</NavLink></li>
                   <li><NavLink to="/my-activities" className={linkClass}>My Activities</NavLink></li>
+                  <li><NavLink to="/blog" className={linkClass}>Blog</NavLink></li>
                   <li><NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink></li>
                   <li><NavLink to="/about" className={linkClass}>About</NavLink></li>
                   <li><NavLink to="/contact" className={linkClass}>Contact</NavLink></li>
@@ -114,6 +117,7 @@
                 <>
                   <li><NavLink to="/" className={linkClass} end>Home</NavLink></li>
                   <li><NavLink to="/challenges" className={linkClass}>Challenges</NavLink></li>
+                  <li><NavLink to="/blog" className={linkClass}>Blog</NavLink></li>
                   <li><NavLink to="/about" className={linkClass}>About</NavLink></li>
                 </>
               )}

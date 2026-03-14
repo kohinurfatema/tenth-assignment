@@ -105,7 +105,7 @@ const Testimonials = () => {
                     <div className={"absolute inset-0 bg-gradient-to-br " + testimonial.color + " rounded-full blur-sm opacity-50 group-hover:opacity-75 transition-opacity"}></div>
                     <div className="avatar relative">
                       <div className="w-12 rounded-full ring-2 ring-white dark:ring-base-300 shadow-md">
-                        <img src={testimonial.avatar} alt={testimonial.name} />
+                        <img src={testimonial.avatar} alt={testimonial.name} loading="lazy" />
                       </div>
                     </div>
                   </div>

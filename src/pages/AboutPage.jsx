@@ -71,7 +71,7 @@ const AboutPage = () => {
           {teamMembers.map((member, index) => (
             <div key={index} className="card bg-base-100 shadow-lg">
               <figure className="px-6 pt-6">
-                <img src={member.image} alt={member.name} className="rounded-full w-32 h-32 object-cover" />
+                <img src={member.image} alt={member.name} className="rounded-full w-32 h-32 object-cover" loading="lazy" />
               </figure>
               <div className="card-body text-center">
                 <h3 className="font-bold text-lg">{member.name}</h3>

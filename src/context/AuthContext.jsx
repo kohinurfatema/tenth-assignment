@@ -1,15 +1,18 @@
 // src/context/AuthContext.jsx
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-    onAuthStateChanged, 
-    signInWithEmailAndPassword, 
+import {
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
     updateProfile,
+    updatePassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
     GoogleAuthProvider,
     signInWithPopup,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
 } from 'firebase/auth';
 
 // 🚨 CRITICAL FIX: The import path is corrected to match your file name 'firebase.config.js'
@@ -107,15 +110,24 @@ export const AuthProvider = ({ children }) => {
 
     const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
+    const updateUserProfile = (data) => updateProfile(auth.currentUser, data);
+
+    const changePassword = async (currentPassword, newPassword) => {
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        return updatePassword(auth.currentUser, newPassword);
+    };
 
     const value = {
         currentUser,
-        user: currentUser, // Alias for compatibility
+        user: currentUser,
         login,
         loginWithGoogle,
         register,
         logout,
         resetPassword,
+        updateUserProfile,
+        changePassword,
     };
 
     if (loading) {

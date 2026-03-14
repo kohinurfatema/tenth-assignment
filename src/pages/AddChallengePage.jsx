@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import toast, { Toaster } from 'react-hot-toast';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import toast from 'react-hot-toast';
 import { apiRequest } from '../data/apiClient';
 
 const categories = [
@@ -26,11 +26,49 @@ const initialFormState = {
   metricDisplay: '',
 };
 
+const toInputDate = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().split('T')[0];
+};
+
 const AddChallengePage = () => {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = Boolean(editId);
+
+  useEffect(() => {
+    if (!editId) return;
+    setLoadingEdit(true);
+    apiRequest(`/api/challenges/${editId}`)
+      .then((data) => {
+        setFormData({
+          title: data.title || '',
+          category: data.category || '',
+          description: data.description || '',
+          duration: String(data.duration || ''),
+          target: data.target || '',
+          impactMetric: data.impactMetric || '',
+          participants: String(data.participants || '0'),
+          createdBy: data.createdBy || '',
+          startDate: toInputDate(data.startDate),
+          endDate: toInputDate(data.endDate),
+          imageUrl: data.imageUrl || data.imageURL || '',
+          metricDisplay: data.metricDisplay || '',
+        });
+      })
+      .catch(() => {
+        toast.error('Failed to load challenge data.');
+        navigate('/dashboard/challenges');
+      })
+      .finally(() => setLoadingEdit(false));
+  }, [editId, navigate]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,24 +106,41 @@ const AddChallengePage = () => {
         duration: Number(formData.duration),
         participants: Number(formData.participants || 0),
       };
-      const data = await apiRequest('/api/challenges', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      toast.success('Challenge created successfully!');
-      setFormData(initialFormState);
-      navigate(`/challenges/${data.slug || data._id}`);
+
+      if (isEditMode) {
+        await apiRequest(`/api/challenges/${editId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(payload),
+        });
+        toast.success('Challenge updated successfully!');
+        navigate('/dashboard/challenges');
+      } else {
+        const data = await apiRequest('/api/challenges', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        toast.success('Challenge created successfully!');
+        setFormData(initialFormState);
+        navigate(`/challenges/${data.slug || data._id}`);
+      }
     } catch (error) {
-      toast.error(error.message || 'Failed to create challenge.');
+      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'create'} challenge.`);
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (loadingEdit) {
+    return (
+      <div className="py-10 flex justify-center">
+        <span className="loading loading-spinner loading-lg text-success"></span>
+      </div>
+    );
+  }
+
   return (
     <div className="py-10">
-      <Toaster position="top-center" />
-      <h1 className="section-title mb-8">Add New Challenge</h1>
+      <h1 className="section-title mb-8">{isEditMode ? 'Edit Challenge' : 'Add New Challenge'}</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
           <div>
@@ -227,9 +282,16 @@ const AddChallengePage = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? <span className="loading loading-spinner" /> : 'Create Challenge'}
-        </button>
+        <div className="flex gap-3">
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? <span className="loading loading-spinner" /> : isEditMode ? 'Update Challenge' : 'Create Challenge'}
+          </button>
+          {isEditMode && (
+            <button type="button" className="btn btn-ghost" onClick={() => navigate('/dashboard/challenges')}>
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
