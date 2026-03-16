@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { FaClock, FaUser, FaArrowRight } from 'react-icons/fa';
+import { API_BASE_URL } from '../../data/apiClient';
 
 const fallbackPosts = [
   {
@@ -42,8 +43,7 @@ const BlogPreview = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
-        const res = await fetch(apiUrl + '/api/blogs?limit=3');
+        const res = await fetch(API_BASE_URL + '/api/blogs?limit=3');
         if (res.ok) {
           const data = await res.json();
           setPosts(Array.isArray(data) && data.length ? data.slice(0, 3) : fallbackPosts);

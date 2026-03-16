@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { FaSearch, FaTrash, FaUserShield, FaUser, FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../data/apiClient';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,8 +25,7 @@ const ManageUsersPage = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await fetch(apiUrl + '/api/users');
+      const response = await fetch(API_BASE_URL + '/api/users');
       if (response.ok) {
         const data = await response.json();
         setUsers(Array.isArray(data) ? data : []);
@@ -49,9 +49,8 @@ const ManageUsersPage = () => {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
       const user = users.find(u => u._id === userId);
-      const res = await fetch(apiUrl + '/api/users/' + user.email, {
+      const res = await fetch(API_BASE_URL + '/api/users/' + user.email, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: newRole }),
@@ -68,8 +67,7 @@ const ManageUsersPage = () => {
     if (!deleteModal.user) return;
     setDeleteLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const res = await fetch(apiUrl + '/api/users/' + deleteModal.user._id, {
+      const res = await fetch(API_BASE_URL + '/api/users/' + deleteModal.user._id, {
         method: 'DELETE',
         headers: {
           'x-user-role': user?.role || 'admin',

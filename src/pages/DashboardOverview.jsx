@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { FaLeaf, FaTasks, FaTrophy, FaChartLine, FaCalendarCheck, FaUsers, FaFire } from 'react-icons/fa';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { API_BASE_URL } from '../data/apiClient';
 
 const DashboardOverview = () => {
   const { user } = useAuth();
@@ -21,14 +22,12 @@ const DashboardOverview = () => {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
-
         if (isAdmin || isManager) {
           const roleHeaders = {
             'x-user-role': user?.role || (user?.email?.includes('admin') ? 'admin' : 'manager'),
             'x-user-email': user?.email || '',
           };
-          const statsRes = await fetch(apiUrl + '/api/stats', { headers: roleHeaders });
+          const statsRes = await fetch(API_BASE_URL + '/api/stats', { headers: roleHeaders });
           if (statsRes.ok) {
             const data = await statsRes.json();
             setStats({
@@ -45,7 +44,7 @@ const DashboardOverview = () => {
         } else {
           // Fetch user-specific joined challenges
           const activitiesRes = await fetch(
-            apiUrl + '/api/activities?user=' + encodeURIComponent(user?.email || '')
+            API_BASE_URL + '/api/activities?user=' + encodeURIComponent(user?.email || '')
           );
           const activities = activitiesRes.ok ? await activitiesRes.json() : [];
 
@@ -91,7 +90,6 @@ const DashboardOverview = () => {
   useEffect(() => {
     const fetchCharts = async () => {
       setChartsLoading(true);
-      const apiUrl = import.meta.env.VITE_API_URL;
       const userParam = user?.email ? '?user=' + encodeURIComponent(user.email) : '';
 
       const roleHeaders = {
@@ -101,14 +99,14 @@ const DashboardOverview = () => {
 
       try {
         const [weeklyRes, impactRes] = await Promise.all([
-          fetch(apiUrl + '/api/stats/weekly' + userParam, { headers: roleHeaders }),
-          fetch(apiUrl + '/api/stats/impact' + userParam, { headers: roleHeaders }),
+          fetch(API_BASE_URL + '/api/stats/weekly' + userParam, { headers: roleHeaders }),
+          fetch(API_BASE_URL + '/api/stats/impact' + userParam, { headers: roleHeaders }),
         ]);
         if (weeklyRes.ok) setActivityData(await weeklyRes.json());
         if (impactRes.ok) setImpactData(await impactRes.json());
 
         if (isAdmin || isManager) {
-          const growthRes = await fetch(apiUrl + '/api/stats/growth', { headers: roleHeaders });
+          const growthRes = await fetch(API_BASE_URL + '/api/stats/growth', { headers: roleHeaders });
           if (growthRes.ok) setMonthlyData(await growthRes.json());
         }
       } catch {

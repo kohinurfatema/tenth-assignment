@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "../data/apiClient";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -19,8 +20,7 @@ const ContactPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await fetch(apiUrl + '/api/contacts', {
+      const response = await fetch(API_BASE_URL + '/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

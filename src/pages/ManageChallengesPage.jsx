@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
 import { FaSearch, FaEdit, FaTrash, FaPlus, FaEye, FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../data/apiClient';
 
 const ITEMS_PER_PAGE = 10;
 const CATEGORIES = ['Waste Reduction', 'Green Living', 'Water Conservation', 'Sustainable Transport', 'Energy Conservation'];
@@ -24,8 +25,7 @@ const ManageChallengesPage = () => {
   const fetchChallenges = async () => {
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await fetch(apiUrl + '/api/challenges');
+      const response = await fetch(API_BASE_URL + '/api/challenges');
       if (response.ok) {
         const data = await response.json();
         setChallenges(Array.isArray(data) ? data : []);
@@ -45,8 +45,7 @@ const ManageChallengesPage = () => {
     if (!deleteModal.challenge) return;
     setDeleteLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await fetch(apiUrl + '/api/challenges/' + deleteModal.challenge._id, {
+      const response = await fetch(API_BASE_URL + '/api/challenges/' + deleteModal.challenge._id, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error();

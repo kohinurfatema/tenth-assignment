@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
 import { FaSearch, FaClock, FaUser, FaArrowRight, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { API_BASE_URL } from '../data/apiClient';
 
 const CATEGORIES = ['All', 'Lifestyle', 'Tips & Tricks', 'News', 'Community', 'Science'];
 const ITEMS_PER_PAGE = 6;
@@ -115,8 +116,7 @@ const BlogPage = () => {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
-        const res = await fetch(apiUrl + '/api/blogs');
+        const res = await fetch(API_BASE_URL + '/api/blogs');
         if (res.ok) {
           const data = await res.json();
           setPosts(Array.isArray(data) && data.length ? data : fallbackPosts);

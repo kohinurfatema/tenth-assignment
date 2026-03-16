@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://eco-track-api-server.vercel.app';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tenth-assignment-server-one.vercel.app';
 
 export const fetchJson = async (path) => {
   const response = await fetch(`${API_BASE_URL}${path}`);

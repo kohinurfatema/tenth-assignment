@@ -16,7 +16,8 @@ import {
 } from 'firebase/auth';
 
 // 🚨 CRITICAL FIX: The import path is corrected to match your file name 'firebase.config.js'
-import { auth } from '../firebase/firebase.config'; 
+import { auth } from '../firebase/firebase.config';
+import { API_BASE_URL } from '../data/apiClient';
 
 const AuthContext = createContext();
 
@@ -51,8 +52,7 @@ export const AuthProvider = ({ children }) => {
         
         // Save/update user in MongoDB
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
-            await fetch(apiUrl + '/api/users', {
+            await fetch(API_BASE_URL + '/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -84,8 +84,7 @@ export const AuthProvider = ({ children }) => {
 
         // 3. Save user to MongoDB
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
-            await fetch(apiUrl + '/api/users', {
+            await fetch(API_BASE_URL + '/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

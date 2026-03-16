@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router';
 import { FaStar, FaRegStar, FaChevronLeft, FaChevronRight, FaUsers, FaClock, FaLeaf, FaCalendarAlt, FaShare, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../data/apiClient';
 
 const ChallengeDetailPage = () => {
   const { id } = useParams();
@@ -40,8 +41,7 @@ const ChallengeDetailPage = () => {
     const fetchChallenge = async () => {
       try {
         setLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL;
-        const response = await fetch(apiUrl + "/api/challenges/" + id);
+        const response = await fetch(API_BASE_URL + "/api/challenges/" + id);
         if (response.ok) {
           const data = await response.json();
           setChallenge(data);
@@ -57,8 +57,7 @@ const ChallengeDetailPage = () => {
 
     const fetchRelatedChallenges = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
-        const response = await fetch(apiUrl + "/api/challenges?limit=4");
+        const response = await fetch(API_BASE_URL + "/api/challenges?limit=4");
         if (response.ok) {
           const data = await response.json();
           setRelatedChallenges(data.filter(c => c._id !== id).slice(0, 4));
@@ -81,8 +80,7 @@ const ChallengeDetailPage = () => {
   const handleJoinChallenge = async () => {
     if (!user) { toast.error("Please login to join"); return; }
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const res = await fetch(apiUrl + "/api/challenges/join/" + challenge._id, {
+      const res = await fetch(API_BASE_URL + "/api/challenges/join/" + challenge._id, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.uid || user.email })
